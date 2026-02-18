@@ -20,15 +20,14 @@ Both implementations are kept similar to enable fair evaluation.
 ---
 
 ## 📁 Structure
-
+```
 rag-n8n-vs-langchain/
 ├── n8n/          # n8n workflow exports
 ├── langchain/    # LangChain implementation
 ├── data/         # Source & processed data
 ├── evaluation/   # Metrics & comparison
 └── README.md
-
----
+```
 
 ## 🚀 Current Status
 
