@@ -1,2 +1,10 @@
-# rag-n8n-vs-langchain
-Benchmarking RAG pipelines using n8n and LangChain
+# RAG Pipeline Benchmark: n8n vs LangChain
+
+This project compares RAG ingestion pipelines built using:
+
+- n8n
+- LangChain
+
+Using the same data, chunking, and embeddings to evaluate performance.
+
+Status: 🚧 In Progress
