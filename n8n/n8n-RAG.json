@@ -1,0 +1,559 @@
+{
+  "name": "n8n-RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        192
+      ],
+      "id": "0be1ac6c-3602-4c5f-8d96-41ab9fb76c5c",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -48,
+        512
+      ],
+      "id": "35d33fad-7bdc-465d-98e1-a66e80d986ad",
+      "name": "When chat message received",
+      "webhookId": "444f9243-ade8-4627-a5a2-4a51d990c9fa"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.response }}",
+        "waitUserReply": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        512
+      ],
+      "id": "7e13b3aa-b534-4bb1-b357-c5d2f3b09991",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "ac399884-230b-4e6e-a751-7e90a6f9f122",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://pytorch.org/sitemap.xml",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        336
+      ],
+      "id": "7167818a-f651-4688-8713-5d06b8011134",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "url",
+              "cssSelector": "loc",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        336
+      ],
+      "id": "c7997dfb-0444-4797-8ee5-b3e3bd9541e8",
+      "name": "HTML1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        336
+      ],
+      "id": "349cae71-bf94-46e4-83a9-a87f2c8d9e7f",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        288,
+        336
+      ],
+      "id": "62ee6023-7cec-4d4c-85b2-7ae743ced5c6",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "page_url",
+              "cssSelector": "loc",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        336
+      ],
+      "id": "fb9bfe46-d02f-4dd4-801d-0b46887f9862",
+      "name": "HTML2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.0.6:11434/api/embeddings",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\": \"nomic-embed-text\", \"prompt\": \"{{ $json.chatInput }}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        240,
+        512
+      ],
+      "id": "e45c6001-e9a2-4acc-a845-98f0d55b622d",
+      "name": "embed query"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tvvkoehdskjwjkgsfeqc.supabase.co/rest/v1/rpc/match_documents",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DNNFJLVrlVJd-jxY-qoCRg_TBAGC-iG"
+            },
+            {
+              "name": "authorization",
+              "value": "Bearer sb_publishable_DNNFJLVrlVJd-jxY-qoCRg_TBAGC-iG"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query_embedding",
+              "value": "={{ $json.embedding }}"
+            },
+            {
+              "name": "match_count",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        512
+      ],
+      "id": "b7b1c3e9-6f66-4620-85c9-7b817530b8dc",
+      "name": "retrieval"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect retrieved docs\nconst docs = items.map(item => item.json.content);\n\n// Build context\nconst context = docs.join(\"\\n\\n---\\n\\n\");\n\n// Get question from chat trigger\nconst question = $items(\"When chat message received\")[0].json.chatInput;\n\nreturn [\n  {\n    json: {\n      context,\n      question\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        512
+      ],
+      "id": "c8cb1f7f-f7ac-4f5c-b670-bfad22365b97",
+      "name": "top k"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.0.6:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "llama3"
+            },
+            {
+              "name": "prompt",
+              "value": "=You are a helpful AI assistant.\\n\\nContext:\\n\" +{{ $json.context }} + \"\\n\\nQuestion:\\n\" + {{ $json.question }} + \"\\n\\nAnswer clearly:\n"
+            },
+            {
+              "name": "stream",
+              "value": "={{ false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        912,
+        512
+      ],
+      "id": "14c2d653-3619-4082-9202-2f9529987b84",
+      "name": "generation"
+    },
+    {
+      "parameters": {
+        "url": "https://pytorch.org/tutorials/beginner/basics/intro.html",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8b23d2fe-f266-40b6-b3e8-f51c09d96826",
+      "name": "link"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "content",
+              "cssSelector": "article.bd-article"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "b5ab5613-95b0-413d-aeae-c374cf37067f",
+      "name": "extract"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.content;\n\n// Clean extra spaces\nconst cleanText = text.replace(/\\s+/g, ' ').trim();\n\nconst chunkSize = 1000;   // characters\nconst overlap = 200;\n\nlet chunks = [];\nlet start = 0;\n\nwhile (start < cleanText.length) {\n  let end = start + chunkSize;\n\n  chunks.push({\n    content: cleanText.slice(start, end)\n  });\n\n  start = end - overlap;\n}\n\nreturn chunks.map(chunk => ({ json: chunk }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "70dcf5f8-2bd9-4545-a0f7-fcdc8848eb23",
+      "name": "chunk"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.0.6:11434/api/embeddings",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\": \"nomic-embed-text\", \"prompt\": \"{{$json.content}}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "46c9c705-3b16-4b76-815f-12d10327ed55",
+      "name": "embed"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tvvkoehdskjwjkgsfeqc.supabase.co/rest/v1/documents",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_DNNFJLVrlVJd-jxY-qoCRg_TBAGC-iG"
+            },
+            {
+              "name": "authorization",
+              "value": "Bearer sb_publishable_DNNFJLVrlVJd-jxY-qoCRg_TBAGC-iG"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $json.content }}"
+            },
+            {
+              "name": "embedding",
+              "value": "={{ $json.embedding }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1104,
+        0
+      ],
+      "id": "71c4ca4b-f0c0-4942-b3e4-d92f128aeeb3",
+      "name": "send to db"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "send to db",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "embed query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "HTML2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "embed query": {
+      "main": [
+        [
+          {
+            "node": "retrieval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrieval": {
+      "main": [
+        [
+          {
+            "node": "top k",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "top k": {
+      "main": [
+        [
+          {
+            "node": "generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generation": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "link": {
+      "main": [
+        [
+          {
+            "node": "extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract": {
+      "main": [
+        [
+          {
+            "node": "chunk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "chunk": {
+      "main": [
+        [
+          {
+            "node": "embed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "embed": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e838fe10-c884-4cbb-9baf-570547b3d061",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "9V6fdX2OvZZQIcHQ0SHB1",
+  "tags": []
+}
