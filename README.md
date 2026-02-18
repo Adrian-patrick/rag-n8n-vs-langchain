@@ -1,10 +1,73 @@
-# RAG Pipeline Benchmark: n8n vs LangChain
+# RAG: n8n vs LangChain
 
-This project compares RAG ingestion pipelines built using:
+This project builds and compares a Retrieval-Augmented Generation (RAG) pipeline using:
 
-- n8n
-- LangChain
+- n8n (workflow automation)
+- LangChain (Python framework)
 
-Using the same data, chunking, and embeddings to evaluate performance.
+Both implementations are kept similar to enable fair evaluation.
 
-Status: 🚧 In Progress
+---
+
+## 🎯 Goal
+
+- Ingest PyTorch documentation
+- Generate embeddings
+- Store in vector database
+- Enable semantic search + generation
+- Compare performance
+
+---
+
+## 📁 Structure
+
+rag-n8n-vs-langchain/
+├── n8n/
+├── langchain/
+├── data/
+├── evaluation/
+└── README.md
+
+
+---
+
+## 🚀 Current Status
+
+### n8n
+✅ Working RAG pipeline  
+- Sitemap crawling  
+- HTML extraction  
+- Chunking  
+- Embeddings  
+- Retrieval + generation  
+
+Currently supports PyTorch blogs and partial docs.
+
+### LangChain
+🚧 In progress
+
+---
+
+## ⚙️ Stack
+
+- Embeddings: Local / API
+- Vector DB: Supabase / Local
+- LLM: Local / API
+- Orchestration: n8n / LangChain
+
+---
+
+## 📌 Roadmap
+
+- [x] Single-site RAG
+- [x] Sitemap parsing
+- [x] Chunking
+- [ ] Full PyTorch docs
+- [ ] LangChain pipeline
+- [ ] Evaluation metrics
+
+---
+
+## 👤 Author
+
+Adrian Patrick
