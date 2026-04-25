@@ -1,71 +1,138 @@
 # RAG: n8n vs LangChain
 
-This project builds and compares a Retrieval-Augmented Generation (RAG) pipeline using:
+This project compares two Retrieval-Augmented Generation (RAG) implementations over PyTorch docs:
 
-- n8n (workflow automation)
-- LangChain (Python framework)
+- n8n workflow: `n8n/n8n-RAG.json`
+- LangChain Python pipeline: `langchain/*.py`
 
-Both implementations are kept similar to enable fair evaluation.
+The LangChain implementation is now complete and includes ingestion, querying, and basic evaluation.
 
----
+## Goal
 
-## 🎯 Goal
+- Crawl PyTorch doc pages from sitemap
+- Chunk and embed documents
+- Store embeddings in a vector database
+- Answer questions with retrieved context
+- Evaluate answer quality and latency
 
-- Ingest PyTorch documentation
-- Generate embeddings
-- Store in vector database
-- Enable semantic search + generation
-- Compare performance
+## Project Structure
 
----
-
-## 📁 Structure
 ```
 rag-n8n-vs-langchain/
-├── n8n/          # n8n workflow exports
-├── langchain/    # LangChain implementation
-├── data/         # Source & processed data
-├── evaluation/   # Metrics & comparison
+├── data/
+│   └── chroma/                 # created after ingestion
+├── evaluation/
+│   ├── qa_pairs.json           # sample evaluation set
+│   └── results.json            # generated after evaluation
+├── langchain/
+│   ├── lc_config.py            # environment-driven config
+│   ├── pipeline.py             # ingestion + retrieval + generation core
+│   ├── ingest.py               # CLI: build vector index
+│   ├── query.py                # CLI: ask questions
+│   └── evaluate.py             # CLI: run evaluation
+├── n8n/
+│   └── n8n-RAG.json
+├── .env.example
+├── requirements.txt
 └── README.md
 ```
 
-## 🚀 Current Status
+## LangChain Stack
 
-### n8n
-✅ Working RAG pipeline  
-- Sitemap crawling  
-- HTML extraction  
-- Chunking  
-- Embeddings  
-- Retrieval + generation  
+- Vector DB: Chroma (local persistent)
+- Embeddings: Ollama (default) or OpenAI
+- LLM: Ollama (default) or OpenAI
+- Data source: PyTorch sitemap + docs pages
 
-Currently supports PyTorch blogs and partial docs.
+## Setup
 
-### LangChain
-🚧 In progress
+1. Create and activate a Python virtual environment.
+2. Install dependencies:
 
----
+```bash
+pip install -r requirements.txt
+```
 
-## ⚙️ Stack
+3. Create your env file from the template:
 
-- Embeddings: Local / API
-- Vector DB: Supabase / Local
-- LLM: Local / API
-- Orchestration: n8n / LangChain
+```bash
+cp .env.example .env
+```
 
----
+On Windows PowerShell:
 
-## 📌 Roadmap
+```powershell
+Copy-Item .env.example .env
+```
 
-- [x] Single-site RAG
-- [x] Sitemap parsing
-- [x] Chunking
-- [ ] Full PyTorch docs
-- [ ] LangChain pipeline
-- [ ] Evaluation metrics
+4. Keep `OPENAI_API_KEY` as placeholder unless using OpenAI.
 
----
+## Configuration
 
-## 👤 Author
+All config is in `.env`.
 
-Adrian Patrick
+Important fields:
+
+- `EMBEDDING_PROVIDER`: `ollama` or `openai`
+- `LLM_PROVIDER`: `ollama` or `openai`
+- `URL_PREFIXES`: comma-separated URL filters
+- `VECTOR_DIR`: local Chroma path
+
+Default config runs fully local with Ollama models:
+
+- Embeddings: `nomic-embed-text`
+- LLM: `llama3.2`
+
+If using OpenAI providers, replace:
+
+- `OPENAI_API_KEY=YOUR_OPENAI_API_KEY`
+
+## Usage
+
+### 1) Ingest documents
+
+```bash
+python langchain/ingest.py --reset
+```
+
+What it does:
+
+- Reads sitemap URLs
+- Filters by prefixes
+- Downloads pages
+- Splits into chunks
+- Stores in Chroma
+
+### 2) Query the RAG system
+
+Single question:
+
+```bash
+python langchain/query.py "What is torch.nn.Module?"
+```
+
+Interactive mode:
+
+```bash
+python langchain/query.py
+```
+
+### 3) Run evaluation
+
+```bash
+python langchain/evaluate.py --input evaluation/qa_pairs.json --output evaluation/results.json
+```
+
+Outputs summary metrics:
+
+- `avg_keyword_recall`
+- `avg_latency_s`
+
+## n8n Workflow
+
+Import `n8n/n8n-RAG.json` into n8n to run the workflow implementation.
+
+## Notes
+
+- Some sitemap URLs may fail to fetch; ingestion skips failed pages and continues.
+- For fair comparison, use similar embedding/LLM settings across n8n and LangChain.

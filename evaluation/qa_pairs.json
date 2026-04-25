@@ -1,0 +1,14 @@
+[
+  {
+    "question": "What does torch.nn.Module represent in PyTorch?",
+    "expected_keywords": ["base class", "neural network", "module"]
+  },
+  {
+    "question": "How do you move a tensor to GPU in PyTorch?",
+    "expected_keywords": ["cuda", "to", "tensor"]
+  },
+  {
+    "question": "What is the purpose of torch.utils.data.DataLoader?",
+    "expected_keywords": ["batch", "dataset", "shuffle"]
+  }
+]
